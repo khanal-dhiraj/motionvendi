@@ -1,0 +1,159 @@
+{
+  "E1_gate_detection": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "auroc": 1.0,
+    "tp": 24,
+    "fp": 0,
+    "fn": 0,
+    "n_corrupt": 24,
+    "n_clean": 132
+  },
+  "E2_noise_inflation": {
+    "vendi_ungated": {
+      "mean": 11.393877375627635,
+      "std": 0.4108848899815558,
+      "ci95": [
+        10.675651815834188,
+        12.192525636213594
+      ],
+      "sample_size": 100,
+      "n_boot": 40
+    },
+    "vendi_gated": {
+      "mean": 9.78884554695072,
+      "std": 0.1646189785920104,
+      "ci95": [
+        9.494813013453747,
+        10.128828927382695
+      ],
+      "sample_size": 100,
+      "n_boot": 40
+    },
+    "inflation_pct": 16.396538498627063,
+    "sample_size": 100
+  },
+  "E3_label_collapse": {
+    "family": "wipe_circle",
+    "n": 20,
+    "vendi_one_family": 3.186812153169934,
+    "vendi_random_mix": 6.668759087168629,
+    "collapse_ratio": 0.4778718366512421,
+    "bandwidth_sweep": {
+      "0.1": {
+        "one_family": 7.877965938840099,
+        "random_mix": 18.385115437704542
+      },
+      "0.3": {
+        "one_family": 4.757639329362901,
+        "random_mix": 14.02189983030206
+      },
+      "1.0": {
+        "one_family": 3.186812153169934,
+        "random_mix": 6.668759087168629
+      },
+      "3.0": {
+        "one_family": 2.0121619504835437,
+        "random_mix": 2.839652136517537
+      },
+      "10.0": {
+        "one_family": 1.367622821282819,
+        "random_mix": 1.5496878198451254
+      }
+    },
+    "psd_ok": true,
+    "kernel_stats_one_family": {
+      "mean": 0.5321828484829216,
+      "p05": 0.3102615550890434,
+      "p50": 0.35354376509105856,
+      "p95": 0.9763572112355343
+    }
+  },
+  "E4_duplicate_recall": {
+    "n_planted_pairs": 12,
+    "nn_recall@1": 0.75,
+    "nn_recall@3": 0.75,
+    "nn_recall@5": 0.8333333333333334,
+    "top5_most_similar_pairs": [
+      {
+        "i": 13,
+        "j": 131,
+        "similarity": 0.997792433790169,
+        "same_family": true
+      },
+      {
+        "i": 119,
+        "j": 122,
+        "similarity": 0.9961342072365426,
+        "same_family": true
+      },
+      {
+        "i": 17,
+        "j": 127,
+        "similarity": 0.9936600945258509,
+        "same_family": true
+      },
+      {
+        "i": 16,
+        "j": 121,
+        "similarity": 0.9915182853886386,
+        "same_family": true
+      },
+      {
+        "i": 21,
+        "j": 31,
+        "similarity": 0.9882196388323735,
+        "same_family": true
+      }
+    ]
+  },
+  "E5_curation_curve": {
+    "full_vendi": 10.157951118761156,
+    "curve": [
+      {
+        "fraction_kept": 0.05,
+        "episodes_kept": 7,
+        "vendi": 5.438420723115857,
+        "vendi_retained_frac": 0.4757630075521451
+      },
+      {
+        "fraction_kept": 0.1,
+        "episodes_kept": 13,
+        "vendi": 7.675064202519171,
+        "vendi_retained_frac": 0.671428676458531
+      },
+      {
+        "fraction_kept": 0.2,
+        "episodes_kept": 26,
+        "vendi": 9.877083119260865,
+        "vendi_retained_frac": 0.8640653251942171
+      },
+      {
+        "fraction_kept": 0.3,
+        "episodes_kept": 40,
+        "vendi": 10.88884610885739,
+        "vendi_retained_frac": 0.9525762049822385
+      },
+      {
+        "fraction_kept": 0.5,
+        "episodes_kept": 66,
+        "vendi": 11.430944896487752,
+        "vendi_retained_frac": 1.0
+      },
+      {
+        "fraction_kept": 0.75,
+        "episodes_kept": 99,
+        "vendi": 10.99570790650075,
+        "vendi_retained_frac": 0.9619246708012098
+      },
+      {
+        "fraction_kept": 1.0,
+        "episodes_kept": 132,
+        "vendi": 10.157951118761156,
+        "vendi_retained_frac": 0.8886361723152272
+      }
+    ],
+    "n_episodes": 132
+  }
+}

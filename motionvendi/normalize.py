@@ -162,6 +162,37 @@ def resample_uniform(X: np.ndarray, n_steps: int) -> np.ndarray:
     return out
 
 
+def resample_arclength(
+    X: np.ndarray, n_steps: int, pos_dims: slice = slice(0, 3)
+) -> np.ndarray:
+    """Resample a (T, D) sequence uniformly in POSITION ARC LENGTH, not time.
+
+    Two executions of the same spatial path at different speed profiles (a
+    time warp) produce identical arc-length-parameterized vectors — uniform
+    time resampling does NOT have this property. Speed is deleted as a
+    nuisance variable; if speed matters for a task family, report it as a
+    separate feature rather than entangling it with path shape.
+    """
+    X = np.asarray(X, dtype=np.float64)
+    valid = np.all(np.isfinite(X), axis=1)
+    if valid.sum() < 2:
+        return np.full((n_steps, X.shape[1]), np.nan)
+    Xv = X[valid]
+    seg = np.linalg.norm(np.diff(Xv[:, pos_dims], axis=0), axis=1)
+    s = np.concatenate([[0.0], np.cumsum(seg)])
+    if s[-1] < 1e-9:  # stationary segment: arc length degenerate, fall back to time
+        return resample_uniform(X, n_steps)
+    s = s / s[-1]
+    # collapse repeated arc-length values (pauses) so np.interp stays well-defined
+    keep = np.concatenate([[True], np.diff(s) > 1e-12])
+    s, Xv = s[keep], Xv[keep]
+    dst = np.linspace(0.0, 1.0, n_steps)
+    out = np.empty((n_steps, X.shape[1]))
+    for d in range(X.shape[1]):
+        out[:, d] = np.interp(dst, s, Xv[:, d])
+    return out
+
+
 def episode_to_vector(
     ee_rows_left: np.ndarray | None,
     ee_rows_right: np.ndarray | None,
@@ -188,5 +219,5 @@ def episode_to_vector(
         finite = np.all(np.isfinite(pos), axis=1)
         if finite.any():
             feats[:, :3] = pos - np.nanmean(pos[finite], axis=0)
-        blocks.append(resample_uniform(feats, n_steps).ravel())
+        blocks.append(resample_arclength(feats, n_steps).ravel())
     return np.concatenate(blocks)

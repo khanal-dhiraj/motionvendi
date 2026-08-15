@@ -112,6 +112,30 @@ def test_resample_speed_invariance():
     np.testing.assert_allclose(a, b, atol=5e-3)
 
 
+def test_arclength_resample_time_warp_invariance():
+    # Same spatial path traversed with a nonlinear speed profile (time warp)
+    # must produce the same arc-length-parameterized vector. Uniform-in-time
+    # resampling FAILS this — it's why the quotient is arc length.
+    from motionvendi.normalize import resample_arclength
+
+    t_uniform = np.linspace(0, 1, 300)
+    t_warped = np.linspace(0, 1, 300) ** 1.7
+    path = lambda t: np.stack(
+        [np.sin(2 * np.pi * t), np.cos(2 * np.pi * t), 0.3 * t], axis=1
+    )
+    a = resample_arclength(path(t_uniform), 32)
+    b = resample_arclength(path(t_warped), 32)
+    np.testing.assert_allclose(a, b, atol=2e-2)
+
+
+def test_arclength_resample_stationary_falls_back():
+    from motionvendi.normalize import resample_arclength
+
+    X = np.tile(np.array([1.0, 2.0, 3.0, 0.5]), (50, 1))
+    out = resample_arclength(X, 8)
+    assert out.shape == (8, 4) and np.all(np.isfinite(out))
+
+
 def test_resample_too_few_valid_frames_is_nan():
     X = np.full((10, 3), np.nan)
     X[0] = 0

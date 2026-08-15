@@ -28,23 +28,41 @@ def _rot_z(theta: float) -> np.ndarray:
     return np.array([[c, -s, 0], [s, c, 0], [0, 0, 1.0]])
 
 
+def _shape_perturbation(t: np.ndarray, p: dict) -> np.ndarray:
+    """Per-episode smooth path variation: low-frequency Fourier bumps (~2 cm).
+
+    Humans repeating a task vary the path SHAPE, not just its scale — without
+    this, independent episodes of a stereotyped family are as similar as true
+    duplicates and duplicate ground truth is meaningless. Duplicate pairs share
+    these coefficients (same behavior), independent episodes draw fresh ones.
+    """
+    shape = p.get("shape")
+    if shape is None:
+        return np.zeros((len(t), 3))
+    out = np.zeros((len(t), 3))
+    for k in range(shape.shape[1]):
+        out += 0.02 * shape[:, k][None, :] * np.sin((k + 1) * np.pi * t)[:, None]
+    return out
+
+
 def _traj(family: str, t: np.ndarray, p: dict) -> np.ndarray:
     """Right-hand xyz path for a behavior family on t in [0,1]. Meters."""
     a = p["amp"]
+    bump = _shape_perturbation(t, p)
     if family == "reach":
-        return np.stack([0.4 * t, 0.05 * np.sin(np.pi * t) * a, 0.2 * t], axis=1)
+        return np.stack([0.4 * t, 0.05 * np.sin(np.pi * t) * a, 0.2 * t], axis=1) + bump
     if family == "wipe_circle":
         th = 2 * np.pi * p["reps"] * t
-        return np.stack([0.15 * np.cos(th) * a, 0.15 * np.sin(th) * a, 0.02 * np.sin(4 * th)], axis=1)
+        return np.stack([0.15 * np.cos(th) * a, 0.15 * np.sin(th) * a, 0.02 * np.sin(4 * th)], axis=1) + bump
     if family == "pour":
-        return np.stack([0.25 * t, 0.1 * (1 - np.cos(np.pi * t)) * a, 0.15 * np.sin(np.pi * t)], axis=1)
+        return np.stack([0.25 * t, 0.1 * (1 - np.cos(np.pi * t)) * a, 0.15 * np.sin(np.pi * t)], axis=1) + bump
     if family == "fold":
-        return np.stack([0.2 * np.abs(np.sin(2 * np.pi * t)) * a, 0.3 * t - 0.15, 0.05 * np.cos(2 * np.pi * t)], axis=1)
+        return np.stack([0.2 * np.abs(np.sin(2 * np.pi * t)) * a, 0.3 * t - 0.15, 0.05 * np.cos(2 * np.pi * t)], axis=1) + bump
     if family == "stir":
         th = 2 * np.pi * p["reps"] * t
-        return np.stack([0.06 * np.cos(th) * a, 0.06 * np.sin(th) * a, -0.02 * t], axis=1)
+        return np.stack([0.06 * np.cos(th) * a, 0.06 * np.sin(th) * a, -0.02 * t], axis=1) + bump
     if family == "handoff":
-        return np.stack([0.3 * np.sin(np.pi * t / 2) * a, 0.25 * t - 0.1, 0.1 * t * (1 - t) * 4], axis=1)
+        return np.stack([0.3 * np.sin(np.pi * t / 2) * a, 0.25 * t - 0.1, 0.1 * t * (1 - t) * 4], axis=1) + bump
     raise ValueError(family)
 
 
@@ -58,7 +76,11 @@ def make_episode(
     seed_params: dict | None = None,
 ) -> dict:
     """One synthetic episode: left/right EE pose rows + head pose rows (T, 7)."""
-    p = seed_params or {"amp": rng.uniform(0.8, 1.2), "reps": rng.integers(2, 5)}
+    p = seed_params or {
+        "amp": rng.uniform(0.8, 1.2),
+        "reps": rng.integers(2, 5),
+        "shape": rng.normal(0.0, 1.0, (3, 4)),
+    }
     t = np.linspace(0, 1, n_frames) ** speed_warp
     right = _traj(family, t, p)
     left = _traj(family, 1 - t, p) * np.array([-1, 1, 1]) * 0.6  # loosely mirrored support hand

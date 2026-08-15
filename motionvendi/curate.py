@@ -56,6 +56,10 @@ def curation_curve(
     fractions = fractions or [0.05, 0.1, 0.2, 0.3, 0.5, 0.75, 1.0]
     full = vendi_score(K)
     order, scores = greedy_max_vendi(K, budget=n)
+    # Vendi is not monotone in subset size: a well-chosen subset can out-score
+    # the redundancy-dragged full corpus. Normalize by the max achieved along
+    # the greedy path so "retained" is a fraction in [0, 1].
+    peak = max(scores)
     curve = []
     for f in fractions:
         k = max(1, int(round(f * n)))
@@ -64,10 +68,10 @@ def curation_curve(
                 "fraction_kept": f,
                 "episodes_kept": k,
                 "vendi": scores[min(k, len(scores)) - 1],
-                "vendi_retained_frac": scores[min(k, len(scores)) - 1] / full,
+                "vendi_retained_frac": scores[min(k, len(scores)) - 1] / peak,
             }
         )
-    return {"full_vendi": full, "greedy_order": order, "curve": curve}
+    return {"full_vendi": full, "peak_vendi": peak, "greedy_order": order, "curve": curve}
 
 
 def redundancy_ranking(K: np.ndarray) -> np.ndarray:
