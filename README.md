@@ -61,7 +61,27 @@ Every design decision is one sentence: *it deletes a nuisance variable or it enf
 ![label collapse](report/figures/e3_label_collapse.png)
 ![curation curve](report/figures/e5_curation_spectrum.png)
 
-Full numbers: [`report/metrics.json`](report/metrics.json) · Full write-up: [`report/REPORT.md`](report/REPORT.md)
+## Real EgoVerse results (237 episodes, 4 labs, pose-only from R2)
+
+Same pipeline, real data — downloaded pose-arrays-only (~400 KB/episode instead of GBs of video):
+
+| Finding | Number |
+|---|---|
+| Episodes dropped by gates | **63/237 (27%)**, with vendor-specific signatures: aria → rotation noise, mecka → degenerate quaternions + frozen streams, scale → frozen streams |
+| Aria wrist-rotation noise floor | **~10x mecka/scale** (median violation rate 1.0%/frame vs 0%) — independently corroborates EgoVerse's own changelog fix of aria EE orientations |
+| Per-lab effective diversity (size-fair bootstrap) | mecka **15.0** > microagi 12.3 > scale 11.0 > aria 9.5 |
+| Real label-collapse (`fold_clothes`, n=11) | task VS 6.4 vs random-mix VS 7.1 (small-n; fold is genuinely high-variety) |
+| Curation | full VS 33.8 effective behaviors from 162 episodes; keep/drop CSV with per-gate evidence |
+
+Two real-data quirks the pipeline surfaced (both now encoded in the loader/gates):
+1. **Zarr arrays are zero-padded past `total_frames`** — without truncation every episode's tail reads as a frozen, degenerate-quaternion corruption.
+2. **Sparse tracker glitches are normal** (0.3–0.7% of aria frames teleport when hands leave the camera FOV) — gates must threshold on violation *rate*, not single events, or they drop 100% of aria.
+
+![prevalence audit](report/figures/real_prevalence_audit.png)
+![per-lab diversity](report/figures/real_per_lab_diversity.png)
+![real curation](report/figures/real_curation_curve.png)
+
+Full numbers: [`report/metrics.json`](report/metrics.json) + [`report/real_metrics.json`](report/real_metrics.json) · keep/drop list: [`report/real_keep_drop.csv`](report/real_keep_drop.csv) · Full write-up: [`report/REPORT.md`](report/REPORT.md)
 
 ## Run it
 

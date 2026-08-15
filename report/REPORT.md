@@ -41,9 +41,23 @@ All claims are tested on a synthetic corpus with planted ground truth, because f
 
 **E5 — Curation curve.** Greedy max-Vendi keep-list: **10% of episodes retain 67% of peak diversity** (random keep retains ~10%); 30% retains ~89%. Full corpus = 10.2 effective behaviors from 156 episodes (6 planted families + genuine within-family variation). Kernel eigenvalue spectrum published alongside — a score without its spectrum hides concentration.
 
+## 4b. Real-data results (237 EgoVerse episodes, 4 labs)
+
+Stratified pose-only sample from R2 (`processed_v3/{aria, microagi, mecka/flagship, scale}`, ~60 episodes each, ~400 KB/episode without video).
+
+**R1 — Prevalence audit.** 63/237 episodes (27%) fail gates, and the failure *signature identifies the vendor pipeline*: aria fails on wrist-rotation noise (28 streams), mecka on degenerate quaternions (14) + frozen streams (10) + missing pose arrays (7), scale almost exclusively on frozen streams (7). Aria's rotation-violation rate is median **1.0%/frame vs 0% for mecka/scale** — a 10x noise floor difference that independently corroborates the EgoVerse changelog entry fixing aria EE orientations. Consequence: a single global threshold either over-drops aria or under-audits scale; quality scoring must be stratified by vendor.
+
+**Two data quirks discovered and encoded:** (a) zarr arrays are zero-padded past `total_frames` — untruncated, every tail reads as frozen + degenerate-quaternion corruption; (b) sparse teleports (0.3–0.7% of frames) are *normal* in egocentric tracking (hands exit the FOV) — gates recalibrated from single-event to violation-rate thresholds (2% of frames), after which synthetic detection stays perfect (E1 re-run: P/R/F1/AUROC = 1.0) while real drop rates become plausible (100% of aria dropped → 35%).
+
+**R2 — Real label collapse.** `fold_clothes` (n=11): task VS 6.41 vs random-mix VS 7.10. Weak separation, honestly reported: n is small and clothes-folding is genuinely one of the highest-variety manipulation tasks. A larger sample of a stereotyped task (`wash_dishes`) is the natural follow-up.
+
+**R3 — Per-lab diversity (size-fair, 40 bootstraps at fixed n).** mecka **15.0** > microagi 12.3 > scale 11.0 > aria 9.5 effective behaviors. Hours are not information: labs contribute very differently per episode.
+
+**R4 — Curation.** Full sample = 33.8 effective behaviors from 162 gated episodes; greedy keep-list, top-10 nearest-duplicate pairs (by episode name, auditable), and a per-episode keep/drop CSV with per-gate evidence (`real_keep_drop.csv`).
+
 ## 5. Threats to validity, stated plainly
 
-1. **Synthetic-to-real gap.** Gates/quotients are validated where ground truth exists; real EgoVerse rates (teleport prevalence, idle fraction) are unmeasured here. The zarr loader runs the identical code path on real episodes, pose-arrays-only.
+1. **Synthetic-to-real gap.** Gates/quotients are validated where ground truth exists (synthetic); real-data rates above are measured on a 237-episode stratified sample, not the full 439k corpus.
 2. **Object blindness.** The pose kernel deliberately excludes appearance; distinct objects with identical motion are conflated. Fixed-weight PSD image/semantic kernels are the extension point (never per-pair reweighted — entry-wise weight renormalization voids PSD).
 3. **Speed deletion.** Arc-length removes the speed profile entirely. Where tempo is the skill, re-append it as an explicit scalar feature.
 4. **Scale.** Eigendecomposition caps at ~10^4; corpus claims are bootstrap estimates with CIs, or need Nyström approximation.
