@@ -72,6 +72,49 @@ def main() -> None:
     for lab, a in audit.items():
         print(f"R1 {lab}: {a['n_dropped']}/{a['n']} dropped ({100*a['drop_rate']:.0f}%) reasons={a['reasons']}")
 
+    # per-lab violation-rate distributions: the noise floor differs by vendor
+    # (aria's rotation stream is ~10x noisier — matches EgoVerse's own
+    # changelog fixing aria EE orientations), so thresholds must be read
+    # against the stratified distribution, not assumed universal.
+    from motionvendi.gates import gate_rotation_rate, gate_teleport
+    from motionvendi.zarr_loader import iter_episode_dirs, load_episode
+
+    rot_fracs: dict[str, list[float]] = {}
+    tel_fracs: dict[str, list[float]] = {}
+    for d in iter_episode_dirs(DATA):
+        e = load_episode(d)
+        for side in ("left", "right"):
+            if e[side] is None or len(e[side]) < 30:
+                continue
+            rot_fracs.setdefault(d.parent.name, []).append(
+                gate_rotation_rate(e[side], fps=e["fps"])[1]["rot_violation_frac"]
+            )
+            tel_fracs.setdefault(d.parent.name, []).append(
+                gate_teleport(e[side], fps=e["fps"])[1]["teleport_frac"]
+            )
+    metrics["R1_violation_rates"] = {
+        lab: {
+            "rot_p50": float(np.percentile(v, 50)),
+            "rot_p90": float(np.percentile(v, 90)),
+            "tel_p50": float(np.percentile(tel_fracs[lab], 50)),
+            "tel_p90": float(np.percentile(tel_fracs[lab], 90)),
+        }
+        for lab, v in rot_fracs.items()
+    }
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    order = sorted(rot_fracs)
+    for ax, data, title in (
+        (axes[0], rot_fracs, "wrist rotation-rate violations"),
+        (axes[1], tel_fracs, "position teleport violations"),
+    ):
+        ax.boxplot([data[lab] for lab in order], tick_labels=order, showfliers=False)
+        ax.axhline(0.02, color="#e76f51", ls="--", lw=1, label="drop threshold (2%)")
+        ax.set_ylabel("violating frames / episode")
+        ax.set_title(f"REAL DATA: {title} by lab")
+        ax.legend()
+    fig.tight_layout()
+    fig.savefig(FIG / "real_prevalence_audit.png", dpi=150)
+
     # main analysis stratum: episodes with a fully-finite behavior vector
     finite = np.all(np.isfinite(X), axis=1) if len(X) else np.array([], bool)
     Xf = X[finite]

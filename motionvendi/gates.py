@@ -40,20 +40,32 @@ def gate_finite(rows: np.ndarray, max_nan_frac: float = 0.05) -> tuple[bool, dic
 
 
 def gate_teleport(
-    rows: np.ndarray, fps: float = 30.0, max_speed_m_s: float = 6.0
+    rows: np.ndarray,
+    fps: float = 30.0,
+    max_speed_m_s: float = 6.0,
+    max_violation_frac: float = 0.02,
 ) -> tuple[bool, dict]:
-    """Reject frame-to-frame position jumps beyond a physical hand-speed limit.
+    """Reject episodes where position jumps beyond a physical hand-speed limit
+    are PERVASIVE (violation rate), not merely present.
 
-    Peak human hand speed is ~5-6 m/s (throwing); sustained manipulation is far
-    slower. A jump above the limit is a tracker re-fit, not a movement.
+    Peak human hand speed is ~5-6 m/s (throwing); a jump above that is a
+    tracker re-fit, not a movement. Real egocentric data (measured on aria)
+    carries 0.3-0.7% sparse glitch frames from hands leaving the FOV — those
+    are maskable in training, not grounds to discard a 2-minute episode. An
+    episode is corrupt when glitches exceed ~2% of frames.
     """
     pos = _positions(rows)
     if len(pos) < 2:
-        return False, {"max_speed": np.inf}
+        return False, {"max_speed": np.inf, "teleport_frac": 1.0}
     speed = np.linalg.norm(np.diff(pos, axis=0), axis=1) * fps
     speed = speed[np.isfinite(speed)]
-    max_speed = float(speed.max()) if len(speed) else np.inf
-    return max_speed <= max_speed_m_s, {"max_speed": max_speed}
+    if not len(speed):
+        return False, {"max_speed": np.inf, "teleport_frac": 1.0}
+    frac = float((speed > max_speed_m_s).mean())
+    return frac <= max_violation_frac, {
+        "max_speed": float(speed.max()),
+        "teleport_frac": frac,
+    }
 
 
 def gate_frozen(
@@ -85,20 +97,29 @@ def gate_quaternion(rows: np.ndarray, tol: float = 0.05) -> tuple[bool, dict]:
 
 
 def gate_rotation_rate(
-    rows: np.ndarray, fps: float = 30.0, max_rad_s: float = 4.0 * np.pi
+    rows: np.ndarray,
+    fps: float = 30.0,
+    max_rad_s: float = 4.0 * np.pi,
+    max_violation_frac: float = 0.02,
 ) -> tuple[bool, dict]:
-    """Reject implausible angular velocity of the wrist (orientation teleports)."""
+    """Reject pervasive implausible wrist angular velocity (orientation
+    teleports) — rate-thresholded like gate_teleport, for the same reason."""
     q = np.asarray(rows, dtype=np.float64)[:, 3:7]
     finite = np.all(np.isfinite(q), axis=1)
     if finite.sum() < 2:
-        return False, {"max_rot_rate": np.inf}
+        return False, {"max_rot_rate": np.inf, "rot_violation_frac": 1.0}
     R = quat_wxyz_to_matrix(q[finite])
     # relative rotation angle between consecutive frames
     rel = np.einsum("tji,tjk->tik", R[:-1], R[1:])  # R_t^T R_{t+1}
     cos = np.clip((np.trace(rel, axis1=1, axis2=2) - 1.0) / 2.0, -1.0, 1.0)
     rate = np.arccos(cos) * fps
-    max_rate = float(rate.max()) if len(rate) else np.inf
-    return max_rate <= max_rad_s, {"max_rot_rate": max_rate}
+    if not len(rate):
+        return False, {"max_rot_rate": np.inf, "rot_violation_frac": 1.0}
+    frac = float((rate > max_rad_s).mean())
+    return frac <= max_violation_frac, {
+        "max_rot_rate": float(rate.max()),
+        "rot_violation_frac": frac,
+    }
 
 
 def gate_min_length(rows: np.ndarray, min_frames: int = 30) -> tuple[bool, dict]:

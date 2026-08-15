@@ -1,0 +1,311 @@
+{
+  "R1_prevalence_audit": {
+    "aria": {
+      "n": 60,
+      "n_dropped": 21,
+      "drop_rate": 0.35,
+      "reasons": {
+        "rotation_rate": 28,
+        "min_length": 2,
+        "finite": 2,
+        "frozen": 2,
+        "quaternion": 2,
+        "teleport": 3
+      }
+    },
+    "mecka": {
+      "n": 57,
+      "n_dropped": 21,
+      "drop_rate": 0.3684210526315789,
+      "reasons": {
+        "no_pose_streams": 7,
+        "quaternion": 14,
+        "teleport": 1,
+        "rotation_rate": 2,
+        "frozen": 10
+      }
+    },
+    "microagi": {
+      "n": 60,
+      "n_dropped": 14,
+      "drop_rate": 0.23333333333333334,
+      "reasons": {
+        "rotation_rate": 16
+      }
+    },
+    "scale": {
+      "n": 60,
+      "n_dropped": 7,
+      "drop_rate": 0.11666666666666667,
+      "reasons": {
+        "frozen": 7,
+        "rotation_rate": 1
+      }
+    }
+  },
+  "R1_violation_rates": {
+    "aria": {
+      "rot_p50": 0.01033078308687721,
+      "rot_p90": 0.04087486554320545,
+      "tel_p50": 0.0013320940440295498,
+      "tel_p90": 0.00632688927943761
+    },
+    "mecka": {
+      "rot_p50": 0.0,
+      "rot_p90": 0.007700230392110262,
+      "tel_p50": 0.0003707823507601038,
+      "tel_p90": 0.006279273262431934
+    },
+    "microagi": {
+      "rot_p50": 0.0,
+      "rot_p90": 0.02276073846609201,
+      "tel_p50": 0.0,
+      "tel_p90": 0.0
+    },
+    "scale": {
+      "rot_p50": 0.0,
+      "rot_p90": 0.004163319248284497,
+      "tel_p50": 0.0,
+      "tel_p90": 0.0
+    }
+  },
+  "stratum": {
+    "n_vectors": 162,
+    "n_missing_hand_excluded": 12,
+    "n_first_frame_fallback": 6,
+    "embodiments": {
+      "human_bimanual": 159,
+      "human_left_arm": 3
+    }
+  },
+  "kernel": {
+    "sigma2_median_heuristic": 56.73778291851117,
+    "psd_ok": true,
+    "min_eig": 0.08155030130895073,
+    "offdiag_stats": {
+      "mean": 0.3625577828878071,
+      "p05": 0.1356032919418489,
+      "p50": 0.36787944117144233,
+      "p95": 0.5661018480006359
+    }
+  },
+  "R2_real_label_collapse": {
+    "task": "fold_clothes",
+    "n": 11,
+    "vendi_one_task": 6.405464199168004,
+    "vendi_random_mix": 7.0976127978811485,
+    "collapse_ratio": 0.90248149364815,
+    "bandwidth_sweep": {
+      "0.1": {
+        "one_task": 10.999741068871513,
+        "random_mix": 10.999480269791162
+      },
+      "0.3": {
+        "one_task": 10.663340701722374,
+        "random_mix": 10.722546489620367
+      },
+      "1.0": {
+        "one_task": 6.405464199168004,
+        "random_mix": 7.0976127978811485
+      },
+      "3.0": {
+        "one_task": 2.850093944163527,
+        "random_mix": 3.359199139584929
+      },
+      "10.0": {
+        "one_task": 1.554169709507738,
+        "random_mix": 1.738071853375638
+      }
+    }
+  },
+  "R3_per_lab_diversity": {
+    "fair_sample_size": 27,
+    "labs": {
+      "aria": {
+        "n": 27,
+        "mean": 9.547686067097569,
+        "std": 3.3535540401302487e-15,
+        "ci95": [
+          9.54768606709756,
+          9.547686067097573
+        ],
+        "sample_size": 27,
+        "n_boot": 40
+      },
+      "mecka": {
+        "n": 36,
+        "mean": 14.97168145602453,
+        "std": 0.6227780196831387,
+        "ci95": [
+          14.014984939347341,
+          16.198517959402047
+        ],
+        "sample_size": 27,
+        "n_boot": 40
+      },
+      "microagi": {
+        "n": 46,
+        "mean": 12.301954923255716,
+        "std": 0.6146167200875814,
+        "ci95": [
+          11.41336174044118,
+          13.523020752962696
+        ],
+        "sample_size": 27,
+        "n_boot": 40
+      },
+      "scale": {
+        "n": 53,
+        "mean": 10.97629207372486,
+        "std": 0.609961845543054,
+        "ci95": [
+          9.936357178685949,
+          12.143735460821022
+        ],
+        "sample_size": 27,
+        "n_boot": 40
+      }
+    }
+  },
+  "R4_curation": {
+    "full_vendi": 33.8342194617756,
+    "peak_vendi": 36.99966398014135,
+    "n": 162,
+    "curve": [
+      {
+        "fraction_kept": 0.05,
+        "episodes_kept": 8,
+        "vendi": 7.673730726587891,
+        "vendi_retained_frac": 0.20740001127325305
+      },
+      {
+        "fraction_kept": 0.1,
+        "episodes_kept": 16,
+        "vendi": 13.612543483652125,
+        "vendi_retained_frac": 0.36790992185654225
+      },
+      {
+        "fraction_kept": 0.2,
+        "episodes_kept": 32,
+        "vendi": 22.202069018955054,
+        "vendi_retained_frac": 0.6000613689592279
+      },
+      {
+        "fraction_kept": 0.3,
+        "episodes_kept": 49,
+        "vendi": 28.217931582690742,
+        "vendi_retained_frac": 0.7626537256618334
+      },
+      {
+        "fraction_kept": 0.5,
+        "episodes_kept": 81,
+        "vendi": 34.90662305863537,
+        "vendi_retained_frac": 0.943430812706046
+      },
+      {
+        "fraction_kept": 0.75,
+        "episodes_kept": 122,
+        "vendi": 36.97857125521906,
+        "vendi_retained_frac": 0.9994299211762137
+      },
+      {
+        "fraction_kept": 1.0,
+        "episodes_kept": 162,
+        "vendi": 33.8342194617756,
+        "vendi_retained_frac": 0.9144466684869158
+      }
+    ],
+    "top10_duplicate_pairs": [
+      {
+        "a": "2026-03-27-07-11-10-751773.zarr",
+        "a_lab": "microagi",
+        "a_task": "prepare_ginger",
+        "b": "2026-03-27-12-31-26-274513.zarr",
+        "b_lab": "microagi",
+        "b_task": "chop_onions",
+        "similarity": 0.8162186607154456
+      },
+      {
+        "a": "2026-03-27-07-11-10-751773.zarr",
+        "a_lab": "microagi",
+        "a_task": "prepare_ginger",
+        "b": "2026-03-28-07-58-23-733672.zarr",
+        "b_lab": "microagi",
+        "b_task": "finely_chop_garlic",
+        "similarity": 0.8062010540367488
+      },
+      {
+        "a": "2026-03-27-06-47-13-707381.zarr",
+        "a_lab": "microagi",
+        "a_task": "cut_ginger",
+        "b": "2026-03-27-07-11-10-751773.zarr",
+        "b_lab": "microagi",
+        "b_task": "prepare_ginger",
+        "similarity": 0.8005352566079823
+      },
+      {
+        "a": "2025-12-30-22-36-25-849000.zarr",
+        "a_lab": "aria",
+        "a_task": "put cup on saucer indomain",
+        "b": "2025-12-30-22-36-47-420000.zarr",
+        "b_lab": "aria",
+        "b_task": "put cup on saucer indomain",
+        "similarity": 0.7886362779418208
+      },
+      {
+        "a": "2025-11-27-23-45-40-750000.zarr",
+        "a_lab": "aria",
+        "a_task": "cup_on_saucer",
+        "b": "2025-12-30-22-36-25-849000.zarr",
+        "b_lab": "aria",
+        "b_task": "put cup on saucer indomain",
+        "similarity": 0.7858765963082417
+      },
+      {
+        "a": "2025-11-27-23-45-40-750000.zarr",
+        "a_lab": "aria",
+        "a_task": "cup_on_saucer",
+        "b": "2025-12-30-22-36-47-420000.zarr",
+        "b_lab": "aria",
+        "b_task": "put cup on saucer indomain",
+        "similarity": 0.782551529686962
+      },
+      {
+        "a": "2026-03-27-11-36-36-579686.zarr",
+        "a_lab": "microagi",
+        "a_task": "organize_stationery",
+        "b": "2026-03-27-12-40-11-462338.zarr",
+        "b_lab": "microagi",
+        "b_task": "prepare_chickpea_curry",
+        "similarity": 0.7773328822262991
+      },
+      {
+        "a": "2026-03-27-06-47-13-707381.zarr",
+        "a_lab": "microagi",
+        "a_task": "cut_ginger",
+        "b": "2026-03-27-12-31-26-274513.zarr",
+        "b_lab": "microagi",
+        "b_task": "chop_onions",
+        "similarity": 0.7704866564918629
+      },
+      {
+        "a": "2026-05-01-08-06-58-506325.zarr",
+        "a_lab": "scale",
+        "a_task": "freeform_return_small_objects_to_bins",
+        "b": "2026-05-01-16-06-35-230310.zarr",
+        "b_lab": "scale",
+        "b_task": "freeform_unpack_grocery_bag",
+        "similarity": 0.7653444745437731
+      },
+      {
+        "a": "2026-05-01-08-06-58-506325.zarr",
+        "a_lab": "scale",
+        "a_task": "freeform_return_small_objects_to_bins",
+        "b": "2026-05-01-11-53-55-110575.zarr",
+        "b_lab": "scale",
+        "b_task": "freeform_put_object_in_container",
+        "similarity": 0.7593410315234885
+      }
+    ]
+  }
+}

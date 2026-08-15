@@ -58,10 +58,10 @@ def corruption_severity(ep) -> float:
         worst = max(
             worst,
             side_ev["finite"]["nan_frac"] / 0.05,
-            side_ev["teleport"]["max_speed"] / 6.0,
+            side_ev["teleport"]["teleport_frac"] / 0.02,
             side_ev["frozen"]["frozen_frac"] / 0.9,
             side_ev["quaternion"]["bad_quat_frac"] / 0.05,
-            side_ev["rotation_rate"]["max_rot_rate"] / (4 * np.pi),
+            side_ev["rotation_rate"]["rot_violation_frac"] / 0.02,
         )
     return worst
 
